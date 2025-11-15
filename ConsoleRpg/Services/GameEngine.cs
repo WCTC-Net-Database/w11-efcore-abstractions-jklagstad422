@@ -4,8 +4,8 @@ using ConsoleRpgEntities.Models.Attributes;
 using ConsoleRpgEntities.Models.Characters;
 using ConsoleRpgEntities.Models.Characters.Monsters;
 
-namespace ConsoleRpg.Services;
-
+namespace ConsoleRpg.Services
+{
 public class GameEngine
 {
     private readonly GameContext _context;
@@ -63,7 +63,7 @@ public class GameEngine
 
     private void AttackCharacter()
     {
-        if (_goblin is ITargetable targetableGoblin)
+            if (_goblin is not Goblin goblin) return;
         {
             _player.Attack(targetableGoblin);
             _player.UseAbility(_player.Abilities.First(), targetableGoblin);
@@ -87,5 +87,5 @@ public class GameEngine
     {
         _goblin = _context.Monsters.OfType<Goblin>().FirstOrDefault();
     }
-
+    }
 }
