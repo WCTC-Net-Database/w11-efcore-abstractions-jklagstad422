@@ -1,5 +1,7 @@
 ﻿using ConsoleRpgEntities.Models.Abilities.PlayerAbilities;
 using ConsoleRpgEntities.Models.Attributes;
+using ConsoleRpgEntities.Models.Items;
+using System.Collections.Generic;
 
 namespace ConsoleRpgEntities.Models.Characters
 {
@@ -12,22 +14,28 @@ namespace ConsoleRpgEntities.Models.Characters
         public int Health { get; set; }
         public virtual IEnumerable<Ability> Abilities { get; set; }
 
+        public Equipment Equipment { get; set; }
+
         public void Attack(ITargetable target)
         {
-            // Player-specific attack logic
-            Console.WriteLine($"{Name} attacks {target.Name} with a sword!");
+            int attack = 1;
+
+            if (Equipment?.Weapon != null)
+                attack += Equipment.Weapon.AttackPower;
+
+            if (target is ConsoleRpgEntities.Models.Characters.Monsters.Monster m)
+            {
+                m.Health -= attack;
+                System.Console.WriteLine($"{Name} attacks {m.Name} for {attack}. {m.Name}'s health is now {m.Health}.");
+            }
         }
 
         public void UseAbility(IAbility ability, ITargetable target)
         {
-            if (Abilities.Contains(ability))
-            {
+            if (Abilities != null && Abilities.Contains(ability))
                 ability.Activate(this, target);
-            }
             else
-            {
-                Console.WriteLine($"{Name} does not have the ability {ability.Name}!");
-            }
+                System.Console.WriteLine($"{Name} does not have {ability.Name}!");
         }
     }
 }

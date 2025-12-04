@@ -1,19 +1,29 @@
 ﻿using ConsoleRpg.Services;
+using ConsoleRpgEntities.Data;
+using ConsoleRpg.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ConsoleRpg;
-
-public static class Program
+namespace ConsoleRpg
 {
-    private static void Main(string[] args)
+    public static class Program
     {
-        var serviceCollection = new ServiceCollection();
-        Startup.ConfigureServices(serviceCollection);
+        private static void Main(string[] args)
+        {
+            var services = new ServiceCollection();
+            Startup.ConfigureServices(services);
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = services.BuildServiceProvider();
 
-        var gameEngine = serviceProvider.GetService<GameEngine>();
-        gameEngine?.Run();
+            // Seed the database
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<GameContext>();
+                SeedDatabase.EnsureSeeded(context);
+            }
+
+            // Start the game
+            var engine = serviceProvider.GetService<GameEngine>();
+            engine?.Start();
+        }
     }
 }
-

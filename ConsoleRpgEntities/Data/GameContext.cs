@@ -1,6 +1,7 @@
 ﻿using ConsoleRpgEntities.Models.Abilities.PlayerAbilities;
 using ConsoleRpgEntities.Models.Characters;
 using ConsoleRpgEntities.Models.Characters.Monsters;
+using ConsoleRpgEntities.Models.Items;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConsoleRpgEntities.Data
@@ -11,23 +12,26 @@ namespace ConsoleRpgEntities.Data
         public DbSet<Monster> Monsters { get; set; }
         public DbSet<Ability> Abilities { get; set; }
 
-        public GameContext(DbContextOptions<GameContext> options) : base(options)
-        {
-        }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<Weapon> Weapons { get; set; }
+        public DbSet<Armor> Armors { get; set; }
+        public DbSet<Equipment> Equipment { get; set; }
+
+        public GameContext(DbContextOptions<GameContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure TPH for Character hierarchy
-            modelBuilder.Entity<Monster>()
-                .HasDiscriminator<string>(m=> m.MonsterType)
-                .HasValue<Goblin>("Goblin");
+            modelBuilder.Entity<Item>()
+                .HasDiscriminator<string>("ItemType")
+                .HasValue<Weapon>("Weapon")
+                .HasValue<Armor>("Armor");
 
-            // Configure TPH for Ability hierarchy
-            modelBuilder.Entity<Ability>()
-                .HasDiscriminator<string>(pa=>pa.AbilityType)
-                .HasValue<ShoveAbility>("ShoveAbility");
+            modelBuilder.Entity<Player>()
+                .HasOne(p => p.Equipment)
+                .WithOne()
+                .HasForeignKey<Equipment>(e => e.Id)
+                .IsRequired(false);
 
-            // Configure many-to-many relationship
             modelBuilder.Entity<Player>()
                 .HasMany(p => p.Abilities)
                 .WithMany(a => a.Players)
@@ -35,8 +39,5 @@ namespace ConsoleRpgEntities.Data
 
             base.OnModelCreating(modelBuilder);
         }
-
     }
 }
-
-
